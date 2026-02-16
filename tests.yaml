@@ -1,0 +1,843 @@
+function: constructorTest
+
+tests: 
+
+  - name: valid email, 0 decimal place balance
+    input:
+      email: "a@b.com"
+      balance: 200
+    expected:
+      email: "a@b.com"
+      balance: 200
+
+  - name: valid email, 1 decimal place balance
+    input:
+      email: "a_b@b.org"
+      balance: 49.7
+    expected:
+      email: "a_b@b.org"
+      balance: 49.7
+
+  - name: valid email, 2 decimal place balance
+    input:
+      email: "abc@def.com"
+      balance: 0.01
+    expected:
+      email: "abc@def.com"
+      balance: 0.01
+
+  - name: valid email, acceptable over 2 decimal place balance
+    input:
+      email: "abc-123@def.com"
+      balance: 51.4300000000
+    expected:
+      email: "abc-123@def.com"
+      balance: 51.4300000000
+
+  - name: valid email, acceptable over 2 decimal place balance
+    input:
+      email: "ab.cd@ef.com"
+      balance: 25.0000000000
+    expected:
+      email: "ab.cd@ef.com"
+      balance: 25.0000000000
+
+  - name: invalid email (prohibited symbol), 2 decimal place balance
+    input:
+      email: "ab$cd@ef.com"
+      balance: 2.00
+    expected_exception: IllegalArgumentException
+
+  - name: invalid email (missing domain), 2 decimal place balance
+    input:
+      email: "abc@"
+      balance: 2.00
+    expected_exception: IllegalArgumentException
+
+  - name: valid email, unacceptable balance over 2 decimal places
+    input:
+      email: "ab_cd@ef.org"
+      balance: 65.00000001
+    expected_exception: IllegalArgumentException
+
+  - name: valid email, unacceptable negative balance w/ 2 decimal places
+    input:
+      email: "abc@def.com"
+      balance: -65.00
+    expected_exception: IllegalArgumentException
+
+  - name: invalid email (missing address), positive balance with unacceptable over 2 decimal places
+    input:
+      email: "@def.com"
+      balance: 37.41628
+    expected_exception: IllegalArgumentException
+
+function: getBalanceTest
+
+tests:
+
+  - name: zero balance
+    input:
+      email: "a@b.com"
+      balance: 0
+    expected:
+      balance: 0
+  
+  - name: 0 decimal place balance
+    input:
+      email: "a@b.com"
+      balance: 200
+    expected:
+      balance: 200
+
+  - name: 1 decimal place balance
+    input:
+      email: "a@b.com"
+      balance: 26.3
+    expected:
+      balance: 26.3
+
+  - name: 2 decimal place balance
+    input:
+      email: "a@b.com"
+      balance: 74.29
+    expected:
+      balance: 74.29
+
+  - name: valid over 2 decimal place balance
+    input:
+      email: "a@b.com"
+      balance: 25.00000
+    expected:
+      balance: 25.00000
+
+  - name: valid over 2 decimal place balance
+    input:
+      email: "a@b.com"
+      balance: 25.010000000
+    expected:
+      balance: 25.010000000
+
+  - name: valid over 2 decimal place balance
+    input:
+      email: "a@b.com"
+      balance: 25.100000000
+    expected:
+      balance: 25.100000000
+
+  - name: valid over 2 decimal place balance
+    input:
+      email: "a@b.com"
+      balance: 25.110000000
+    expected:
+      balance: 25.110000000
+
+  - name: 2 decimal place balance (minimum value aside from zero)
+    input:
+      email: "a@b.com"
+      balance: 0.01
+    expected:
+      balance: 0.01
+
+  - name: large value, 2 decimal place balance
+    input:
+      email: "a@b.com"
+      balance: 7982166439.46
+    expected:
+      balance: 7982166439.46
+
+function: isAmountValidTest
+
+tests:
+
+  - name: zero balance
+    input:
+      amount: 0
+    expected: true
+
+  - name: positive, 0 decimal places
+    input:
+      amount: 100
+    expected: true
+
+  - name: positive, 1 decimal place
+    input:
+      amount: 48.3
+    expected: true
+
+  - name: positive, 1 decimal place
+    input:
+      amount: 44.0
+    expected: true
+
+  - name: positive, 2 decimal places
+    input:
+      amount: 50.00
+    expected: true
+
+  - name: positive, 2 decimal places
+    input:
+      amount: 62.10
+    expected: true
+
+  - name: positive, 2 decimal places
+    input:
+      amount: 77.02
+    expected: true
+
+  - name: positive, acceptable more than 2 decimal places
+    input:
+      amount: 77.00000
+    expected: true
+
+  - name: positive, acceptable more than 2 decimal places
+    input:
+      amount: 52.0700000000
+    expected: true
+
+  - name: positive, acceptable more than 2 decimal places
+    input:
+      amount: 1.10000000
+    expected: true
+
+  - name: positive, acceptable more than 2 decimal places
+    input:
+      amount: 748.290000
+    expected: true
+
+  - name: positive, acceptable more than 2 decimal places
+    input:
+      amount: 1.0000000000000000
+    expected: true
+
+  - name: negative, 0 decimal places
+    input:
+      amount: -1
+    expected: false
+
+  - name: negative, 1 decimal place
+    input:
+      amount: -91.4
+    expected: false
+
+  - name: negative, 2 decimal places
+    input:
+      amount: -68.23
+    expected: false
+
+  - name: negative, acceptable more than 2 decimal places
+    input:
+      amount: -68.20000
+    expected: false
+
+  - name: positive, unacceptable more than 2 decimal places
+    input:
+      amount: 49.09600
+    expected: false
+
+  - name: positive, unacceptable more than 2 decimal places
+    input:
+      amount: 124.1507
+    expected: false
+
+  - name: positive, unacceptable more than 2 decimal places
+    input:
+      amount: 31.0049
+    expected: false
+
+  - name: positive, unacceptable more than 2 decimal places
+    input:
+      amount: 1.005
+    expected: false
+
+  - name: positive, unacceptable more than 2 decimal places
+    input:
+      amount: 1.000000000000001
+    expected: false
+  
+function: depositTest
+
+tests:
+
+  - name: 0 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 200
+      amount_deposited: 37
+    expected:
+      balance: 237
+
+  - name: zero balance
+    input:
+      email: "a@b.com"
+      starting_balance: 237
+      amount_deposited: 0
+    expected:
+      balance: 237
+
+  - name: unacceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 237
+      amount_deposited: 27.1985
+    expected_exception: IllegalArgumentException
+
+  - name: 1 decimal place
+    input:
+      email: "a@b.com"
+      starting_balance: 237
+      amount_deposited: 18.2
+    expected:
+      balance: 255.2
+
+  - name: 1 decimal place
+    input:
+      email: "a@b.com"
+      starting_balance: 255.2
+      amount_deposited: 0.01
+    expected:
+      balance: 255.3
+
+  - name: negative amount
+    input:
+      email: "a@b.com"
+      starting_balance: 255.3
+      amount_deposited: -0.01
+    expected_exception: IllegalArgumentException
+
+  - name: 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 255.3
+      amount_deposited: 0.01
+    expected:
+      balance: 255.31
+
+  - name: 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 255.31
+      amount_deposited: 4.69
+    expected:
+      balance: 260.00
+
+  - name: negative amount
+    input:
+      email: "a@b.com"
+      starting_balance: 260.00
+      amount_deposited: -112
+    expected_exception: IllegalArgumentException
+
+  - name: acceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 260.00
+      amount_deposited: 1.020000000000
+    expected:
+      balance: 261.02
+  
+  - name: acceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 261.02
+      amount_deposited: 3.5000000000
+    expected:
+      balance: 264.52
+
+  - name: unacceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 264.52
+      amount_deposited: 0.00000000000001
+    expected_exception: IllegalArgumentException
+
+  - name: negative, unacceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 264.52
+      amount_deposited: -4930.8311405
+    expected_exception: IllegalArgumentException
+
+  - name: acceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 264.52
+      amount_deposited: 35.4800000000
+    expected:
+      balance: 300.00
+
+function: withdrawTest
+
+tests:
+
+  - name: 0 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 200
+      amount_withdrawn: 100
+    expected:
+      balance: 100
+
+  - name: unacceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 100
+      amount_withdrawn: 27.1984
+    expected_exception: IllegalArgumentException
+
+  - name: 1 decimal place
+    input:
+      email: "a@b.com"
+      starting_balance: 100
+      amount_withdrawn: 64.1
+    expected:
+      balance: 35.9
+
+  - name: negative amount
+    input:
+      email: "a@b.com"
+      starting_balance: 35.9
+      amount_withdrawn: -0.01
+    expected_exception: IllegalArgumentException
+
+  - name: 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 35.9
+      amount_withdrawn: 0.01
+    expected:
+      balance: 35.89
+
+  - name: negative amount
+    input:
+      email: "a@b.com"
+      starting_balance: 35.89
+      amount_withdrawn: -18.49
+    expected_exception: IllegalArgumentException
+
+  - name: acceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 35.89
+      amount_withdrawn: 1.02000000000
+    expected:
+      balance: 34.87
+
+  - name: acceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 34.87
+      amount_withdrawn: 3.5000000000
+    expected:
+      balance: 31.37
+
+  - name: amount exceeds balance
+    input:
+      email: "a@b.com"
+      starting_balance: 31.37
+      amount_withdrawn: 31.38
+    expected_exception: InsufficientFundsException
+
+  - name: amount exceeds balance
+    input:
+      email: "a@b.com"
+      starting_balance: 31.37
+      amount_withdrawn: 628
+    expected_exception: InsufficientFundsException
+
+  - name: unacceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 31.37
+      amount_withdrawn: 31.360000000001
+    expected_exception: IllegalArgumentException
+
+  - name: acceptable more than 2 decimal places
+    input:
+      email: "a@b.com"
+      starting_balance: 31.37
+      amount_withdrawn: 31.370000000
+    expected:
+      balance: 0
+
+  - name: amount exceeds balance
+    input:
+      email: "a@b.com"
+      starting_balance: 0
+      amount_withdrawn: 0.01
+    expected_exception: InsufficientFundsException
+
+function: transferTest
+
+tests:
+
+  - name: 0 decimal places
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 36.00
+      to_email: "c@d.com"
+      to_starting_balance: 55.50
+      amount_transferred: 6
+    expected:
+      from_balance: 30.00
+      to_balance: 61.50
+
+  - name: zero balance
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 30.00
+      to_email: "c@d.com"
+      to_starting_balance: 61.50
+      amount_transferred: 0
+    expected:
+      from_balance: 30.00
+      to_balance: 61.50
+
+  - name: amount exceeds balance
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 30.00
+      to_email: "c@d.com"
+      to_starting_balance: 61.50
+      amount_transferred: 30.01
+    expected_exception: InsufficientFundsException
+
+  - name: 1 decimal place
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 30.00
+      to_email: "c@d.com"
+      to_starting_balance: 61.50
+      amount_transferred: 0.1
+    expected:
+      from_balance: 29.90
+      to_balance: 61.60
+    
+  - name: 1 decimal place
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 29.90
+      to_email: "c@d.com"
+      to_starting_balance: 61.60
+      amount_transferred: 2.9
+    expected:
+      from_balance: 27.00
+      to_balance: 64.50
+
+  - name: 2 decimal places
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 27.00
+      to_email: "c@d.com"
+      to_starting_balance: 64.50
+      amount_transferred: 0.01
+    expected:
+      from_balance: 26.99
+      to_balance: 64.51
+
+  - name: 2 decimal places
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 26.99
+      to_email: "c@d.com"
+      to_starting_balance: 64.51
+      amount_transferred: 3.99
+    expected:
+      from_balance: 23.00
+      to_balance: 68.50
+
+  - name: unacceptable more than 2 decimal places
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 23.00
+      to_email: "c@d.com"
+      to_starting_balance: 68.50
+      amount_transferred: 21.94183172423941
+    expected_exception: IllegalArgumentException
+
+  - name: acceptable more than 2 decimal places
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 23.00
+      to_email: "c@d.com"
+      to_starting_balance: 68.50
+      amount_transferred: 23.0000000
+    expected:
+      from_balance: 0
+      to_balance: 91.50
+
+  - name: amount exceeds balance
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 0
+      to_email: "c@d.com"
+      to_starting_balance: 91.50
+      amount_transferred: 2.14
+    expected_exception: InsufficientFundsException
+
+  - name: acceptable more than 2 decimal places
+    input:
+      from_email: "c@d.com"
+      from_starting_balance: 91.50
+      to_email: "a@b.com"
+      to_starting_balance: 0
+      amount_transferred: 91.48000000
+    expected:
+      from_balance: 0.02
+      to_balance: 91.48
+
+  - name: unacceptable more than 2 decimal places
+    input:
+      from_email: "c@d.com"
+      from_starting_balance: 0.02
+      to_email: "a@b.com"
+      to_starting_balance: 91.48
+      amount_transferred: 0.0100000001
+    expected_exception: IllegalArgumentException
+
+  - name: negative amount
+    input:
+      from_email: "c@d.com"
+      from_starting_balance: 0.02
+      to_email: "a@b.com"
+      to_starting_balance: 91.48
+      amount_transferred: -0.01
+    expected_exception: IllegalArgumentException
+
+  - name: negative amount
+    input:
+      from_email: "a@b.com"
+      from_starting_balance: 0.02
+      to_email: "c@d.com"
+      to_starting_balance: 91.48
+      amount_transferred: -24.3
+    expected_exception: IllegalArgumentException
+
+function: isEmailValidTest
+
+tests:
+
+  - name: minimum address and domain length
+    input:
+      email: "a@b.com"
+    expected: true
+
+  - name: minimum address length
+    input:
+      email: "a@mail.com"
+    expected: true
+
+  - name: minimum domain length
+    input:
+      email: "a@b.com"
+    expected: true
+
+  - name: includes hyphen in address
+    input:
+      email: "abc-d@mail.com"
+    expected: true
+
+  - name: includes period in address
+    input:
+      email: "abc.def@mail.com"
+    expected: true
+
+  - name: includes underscore in address
+    input:
+      email: "abc_def@mail.com"
+    expected: true
+
+  - name: includes hyphen and period in address
+    input:
+      email: "a-bc.def@mail.com"
+    expected: true
+
+  - name: includes period and underscore in address
+    input:
+      email: "ab.cde_f@mail.com"
+    expected: true
+
+  - name: includes hyphen, period, and underscore in address
+    input:
+      email: "ab.cd-e_f@mail.com"
+    expected: true
+
+  - name: includes hyphen in domain
+    input:
+      email: "abc.def@mail-archive.com"
+    expected: true
+
+  - name: .org suffix
+    input:
+      email: "abc.def@mail.org"
+    expected: true
+
+  - name: two-letter suffix
+    input:
+      email: "abc.def@mail.cc"
+    expected: true
+
+  - name: empty string
+    input:
+      email: ""
+    expected: false
+
+  - name: null
+    input:
+      email: null
+    expected: false
+
+  - name: hyphen at start of address
+    input:
+      email: "-abc@mail.com"
+    expected: false
+
+  - name: hyphen at end of address
+    input:
+      email: "abc-@mail.com"
+    expected: false
+
+  - name: period at start of address
+    input:
+      email: ".abc@mail.com"
+    expected: false
+
+  - name: period at end of address
+    input:
+      email: "abc.@mail.com"
+    expected: false
+
+  - name: underscore at start of address
+    input:
+      email: "_abc@mail.com"
+    expected: false
+
+  - name: underscore at end of address
+    input:
+      email: "abc_@mail.com"
+    expected: false
+
+  - name: consecutive periods
+    input:
+      email: "abc..def@mail.com"
+    expected: false
+
+  - name: consecutive hyphens
+    input:
+      email: "abcde--f@mail.com"
+    expected: false
+
+  - name: consecutive underscores
+    input:
+      email: "ab__cdef@mail.com"
+    expected: false
+
+  - name: prohibited character - '#'
+    input:
+      email: "abc#def@mail.com"
+    expected: false
+
+  - name: prohibited character - '!'
+    input:
+      email: "a!bcdef@mail.com"
+    expected: false
+
+  - name: prohibited character - '$'
+    input:
+      email: "abcd$ef@mail.com"
+    expected: false
+
+  - name: prohibited character - '^'
+    input:
+      email: "abc^def@mail.com"
+    expected: false
+
+  - name: prohibited character - '+'
+    input:
+      email: "abcde+f@mail.com"
+    expected: false
+
+  - name: prohibited character - '='
+    input:
+      email: "abcd=ef@mail.com"
+    expected: false
+
+  - name: prohibited character - '~'
+    input:
+      email: "a~bcdef@mail.com"
+    expected: false
+
+  - name: prohibited character - '?'
+    input:
+      email: "abcde?f@mail.com"
+    expected: false
+
+  - name: prohibited character - '''
+    input:
+      email: "a'bcdef@mail.com"
+    expected: false
+
+  - name: prohibited character - '@'
+    input:
+      email: "abcde@f@mail.com"
+    expected: false
+
+  - name: prohibited character - '%'
+    input:
+      email: "ab%cdef@mail.com"
+    expected: false
+
+  - name: prohibited character - '*'
+    input:
+      email: "abc*def@mail.com"
+    expected: false
+
+  - name: no address
+    input:
+      email: "@mail.com"
+    expected: false
+
+  - name: no domain or suffix
+    input:
+      email: "abc@"
+    expected: false
+
+  - name: domain with no suffix
+    input:
+      email: "abc.def@mail"
+    expected: false
+
+  - name: one-letter suffix
+    input:
+      email: "abc.def@mail.c"
+    expected: false
+
+  - name: consecutive @ symbols
+    input:
+      email: "abc@@mail.com"
+    expected: false
+
+  - name: spaces in address
+    input:
+      email: " abc@mail.com"
+    expected: false
+
+  - name: spaces in address
+    input:
+      email: "ab c@mail.com"
+    expected: false
+
+  - name: spaces in address
+    input:
+      email: "abc@mail .com"
+    expected: false
+
+  - name: spaces in address
+    input:
+      email: "a b c @ m a i l . c o m"
+    expected: false
+
+  - name: spaces in address
+    input:
+      email: " abc@mail.co m"
+    expected: false
