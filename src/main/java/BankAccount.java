@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class BankAccount {
 
@@ -10,7 +12,7 @@ public class BankAccount {
         }
 
         this.email = email;
-        this.balance = balance;
+        this.balance = normalize(balance);
     }
 
     public double getBalance() {
@@ -26,7 +28,7 @@ public class BankAccount {
             throw new IllegalArgumentException("Invalid deposit amount");
         }
 
-        balance += amount;
+        balance = normalize(balance + amount);
     }
 
     public void withdraw(double amount) throws InsufficientFundsException {
@@ -38,11 +40,15 @@ public class BankAccount {
             throw new InsufficientFundsException("Insufficient funds");
         }
 
-        balance -= amount;
+        balance = normalize(balance - amount);
     }
 
     public void transfer(BankAccount account, double amount)
             throws InsufficientFundsException {
+
+        if (account == null) {
+            throw new IllegalArgumentException("Invalid transfer account");
+        }
 
         if (!isAmountValid(amount)) {
             throw new IllegalArgumentException("Invalid transfer amount");
@@ -52,8 +58,8 @@ public class BankAccount {
             throw new InsufficientFundsException("Insufficient funds");
         }
 
-        this.balance -= amount;
-        account.balance += amount;
+        this.balance = normalize(this.balance - amount);
+        account.balance = normalize(account.balance + amount);
     }
 
     public static boolean isAmountValid(double amount) {
@@ -61,11 +67,19 @@ public class BankAccount {
             return false;
         }
 
-        // round to two decimal places
-        double rounded = Math.round(amount * 100.0) / 100.0;
+        BigDecimal bd = BigDecimal.valueOf(amount);
 
-        // allow small floating-point tolerance
-        return Math.abs(amount - rounded) < 1e-9;
+        // strip trailing zeros so 44.0 counts as scale 0 (valid)
+        bd = bd.stripTrailingZeros();
+
+        // must be 2 decimal places or fewer
+        return bd.scale() <= 2;
+    }
+
+    private static double normalize(double amount) {
+        return BigDecimal.valueOf(amount)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     public static boolean isEmailValid(String email) {
@@ -130,12 +144,10 @@ public class BankAccount {
                 return false;
             }
 
-            // cannot start or end with special characters
             if ((i == 0 || i == part.length() - 1) && isAllowedSpecial) {
                 return false;
             }
 
-            // cannot repeat special characters
             if (isAllowedSpecial && c == previous) {
                 return false;
             }
